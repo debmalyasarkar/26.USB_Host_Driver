@@ -1,0 +1,47 @@
+-------------------------------------------------
+Description - Steps to Deploy Custom USB Driver
+Author      - Debmalya Sarkar
+Date        - 16th April 2018
+-------------------------------------------------
+By default the usb-storage.ko module is invoked when a USB Pendrive 
+is connected.
+The usb-storage driver is autoloaded so it prevents our driver from 
+getting control over the device.
+So, in order to test our driver we have to unload the default driver
+first.
+
+Steps to deploy custom driver
+-----------------------------
+Note - Run all commands with root privileges
+1. Connect Your Pendrive
+2. $dmesg
+   Note down VENDOR_ID and DEVICE_ID.
+   Use these values in your custom driver.
+   Also note that usb-storage is invoked.
+3. Verify that usb-storage is loaded.
+   $lsmod
+   Also note down if uas is loaded.
+4. Disconnect Your Pendrive and repeat step 3.
+5. If uas is loaded currently then run
+   $rmmod uas
+   If it is not loaded then skip this step.
+6. If usb-storage is loaded then run
+   $rmmod usb-storage
+   If it succeeds then proceed to next step.
+   However, if it fails then see which module is still using it and 
+   unload that first followed by unloading usb-storage
+   Run $rmmod <module_using_usb-storage>
+   Run $rmmod usb-storage
+7. Load your module so it gets registered with usb-core.
+   $insmod <your_module_name.ko>
+8. Connect Your Pendrive
+   You should see your probe function getting invoked.
+9. Also the usb-storage will get invoked automatically but it will not 
+   affect our custom driver functionality.
+10.Disconnect Your Pendrive and unload the following modules
+   $rmmod <your_module_name.ko>
+   $rmmod uas          //Only if it is applicable i.e if it is loaded
+   $rmmod usb-storage
+   This ensures normal operation from next time when pendrive is 
+   connected.
+
